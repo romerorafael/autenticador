@@ -1,0 +1,47 @@
+<div class="outer">
+    <div class="container">
+        <div class="row">
+            <div class="offset-md-2 col-lg-5 col md-7 offset-lg-4 offset-md-3">
+                <div class="panel border bg-white">
+                    <div class="panel-heading">
+                        <h3 class="pt-3 font-weight-bold">
+                            Login
+                        </h3>
+                    </div>
+                    <div class="panel-body p-3">
+                        <form [formGroup]="loginForm">
+                            <div class="form-group pt-3">
+                                <div class="input-field">
+                                    <span class="fa fa-user p-2"></span>
+                                    <input formControlName="username" type="text" placeholder="Username">
+                                </div>
+                            </div>
+                            <small *ngIf="loginForm.controls['username'].dirty && loginForm.hasError('required','username')" class="text-danger">UserName é obrigatório</small>
+                            <div class="form-group pt-3">
+                                <div class="input-field">
+                                    <span class="fa fa-lock p-2"></span>
+                                    <input formControlName="password" [type]="type" placeholder="Password">
+                                    <span (click)="hideShowPass()" class="fa {{eyeIcon}}"></span>
+                                </div>
+                            </div>
+                            <small *ngIf="loginForm.controls['password'].dirty && loginForm.hasError('required','password')" class="text-danger"> Senha é obrigatório</small>
+
+                            <div class="form-inline fr mt-4">
+                                <a id="forget" class="font-weight-bold"> Esqueci minha senha</a>
+                            </div>
+                            <button (click)="onSubmit()" type="submit" class="btn btn-primary btn-block mt-4 w-100">Login</button>
+                            <div class="text-center pt-4 text-muted"> Não tem acesso? <a id="signup" routerLink="/signup">Sign Up</a></div>
+                        </form>
+                    </div>
+                    <div class="mx-3 my-2 py-2 bordert">
+                        <div class="text-center py-3">
+                            <a href="https://www.facebook.com.br" class="px-2" target="_blank"> <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIueweZv5Yx-aHR0PtZXD-zM-38r5E5UZfpvglz7x-ZWRflrQj&s" alt="logo facebook"></a>
+                            <a href="https://www.google.com.br" class="px-2" target="_blank"> <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSMllvCw3yN_0gz4e0qyW_xyx_wu7eDqGmw1lnpADIlDkLMHJg&s" alt="logo google"></a>
+                            <a href="https://www.github.com" class="px-2" target="_blank"> <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQIV6PEWzGaSHNSHSTOkK7eprQKBr58XTKeZyv9Pj3y4moMfs1I&s" alt="logo github"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
