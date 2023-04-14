@@ -4,6 +4,9 @@ using AngularAuthAPI.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -30,8 +33,11 @@ namespace AngularAuthAPI.Controllers
             if (user == null) { return NotFound(new { Message = "Usuário/Senha não correspondente" }); }
             if (!PasswordHasher.VerifyPassword(userObj.Password, user.Password)) { return NotFound(new { Message = "Usuário/Senha não correspondente" }); }
             
+            userObj.Token = CreateJWT(user);
+
             return Ok(new
             {
+                userObj.Token,
                 Message = "Logado com sucesso"
             });
         }
@@ -60,6 +66,12 @@ namespace AngularAuthAPI.Controllers
 
         }
 
+        [HttpGet]
+        public async Task<ActionResult<User>> GetAllUser()
+        {
+            return Ok(await _authContext.Users.ToListAsync());
+        }
+
         private Task<bool> CheckUserNameExist(string username)
         {
             return _authContext.Users.AnyAsync(x => x.UserName == username);
@@ -84,6 +96,31 @@ namespace AngularAuthAPI.Controllers
             }
 
             return sb.ToString();
+        }
+
+        private string CreateJWT( User user) {
+
+            var jwtTokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.ASCII.GetBytes("veryverysecret....");
+            var identity = new ClaimsIdentity( new Claim[]
+            {
+                new Claim(ClaimTypes.Role, user.Role),
+                new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}")
+            });
+
+            var credential = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = identity,
+                Expires = DateTime.Now.AddDays(1),
+                SigningCredentials = credential
+            };
+
+            var token = jwtTokenHandler.CreateToken(tokenDescriptor);
+
+            return jwtTokenHandler.WriteToken(token);
+        
         }
     }
 }
