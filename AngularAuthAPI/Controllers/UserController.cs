@@ -1,8 +1,11 @@
 ﻿using AngularAuthAPI.Context;
+using AngularAuthAPI.Helper;
 using AngularAuthAPI.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace AngularAuthAPI.Controllers
 {
@@ -22,10 +25,11 @@ namespace AngularAuthAPI.Controllers
         {
             if (userObj == null) { return BadRequest(); }
 
-            var user = await _authContext.Users.FirstOrDefaultAsync(x => x.UserName == userObj.UserName && x.Password == userObj.Password);
+            var user = await _authContext.Users.FirstOrDefaultAsync(x => x.UserName == userObj.UserName);
 
             if (user == null) { return NotFound(new { Message = "Usuário/Senha não correspondente" }); }
-
+            if (!PasswordHasher.VerifyPassword(userObj.Password, user.Password)) { return NotFound(new { Message = "Usuário/Senha não correspondente" }); }
+            
             return Ok(new
             {
                 Message = "Logado com sucesso"
@@ -36,6 +40,15 @@ namespace AngularAuthAPI.Controllers
         public async Task<IActionResult> RegisterUser([FromBody] User userObj)
         {
             if (userObj == null) { return BadRequest(); }
+            if(await CheckUserNameExist(userObj.UserName)) {  return BadRequest(new {Message="Usuário já existente"}); }
+            if(await CheckEmailExist(userObj.Email)) {  return BadRequest(new {Message="E-mail já existente"}); }
+            var pass = CheckPassordStrength(userObj.Password);
+            if (!string.IsNullOrEmpty(pass)) { return BadRequest(new { Message = pass }); }
+
+            userObj.Password = PasswordHasher.HashPassword(userObj.Password);
+            userObj.Role = "User";
+            userObj.Token = "";
+            userObj.Email = userObj.Email.ToLower();
 
             await _authContext.Users.AddAsync(userObj);
             await _authContext.SaveChangesAsync();
@@ -45,6 +58,32 @@ namespace AngularAuthAPI.Controllers
                 Message = "Usuário registrado com sucesso"
             });
 
+        }
+
+        private Task<bool> CheckUserNameExist(string username)
+        {
+            return _authContext.Users.AnyAsync(x => x.UserName == username);
+        }
+
+        private Task<bool> CheckEmailExist(string email)
+        {
+            return _authContext.Users.AnyAsync(x => x.Email == email);
+        }
+
+        private string CheckPassordStrength(string pass)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if(pass.Length < 8) { sb.Append("Senha deve ter no mínimo 8 caracters" + Environment.NewLine); }
+            if(!(Regex.IsMatch(pass, "[a-z]") && Regex.IsMatch(pass,"[A-Z]") && Regex.IsMatch(pass,"[0-9]")))
+            {
+                sb.Append("A senha deve conter alfanumérico" + Environment.NewLine);
+            }
+            if (!Regex.IsMatch(pass, "[<,>,@,!,#,$,%,^,&,*,(,),_,+,\\[,\\],{,},?,:,;,|,',\\,.,/,~,`,-,=]")) {
+                sb.Append("A senha deve conter caracteres especiais" + Environment.NewLine);
+            }
+
+            return sb.ToString();
         }
     }
 }

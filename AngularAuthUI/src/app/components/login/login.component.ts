@@ -3,6 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import ValidateForm from '../../helpers/validatesForm'
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
+import { NgToastService } from 'ng-angular-popup'
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,12 @@ export class LoginComponent implements OnInit{
     password:['',Validators.required]
   });
 
-  constructor(private fb:FormBuilder, private auth: AuthService, private route:Router) {}
+  constructor(
+    private fb:FormBuilder, 
+    private auth: AuthService, 
+    private route:Router,
+    private toast:NgToastService  
+  ) {}
 
   ngOnInit(): void {
   }
@@ -34,12 +40,12 @@ export class LoginComponent implements OnInit{
     if(this.loginForm.valid){
       this.auth.login(this.loginForm.value).subscribe({
         next:(res)=>{
-          alert(res.message);
+          this.toast.success({detail:"SUCESSO",summary:res.message, duration:5000});
           this.loginForm.reset;
           this.route.navigate(['dashboard']);
         },
         error:(err)=>{
-          alert(err.error.message)
+          this.toast.error({detail:"ERRO",summary:err.error.message, duration:5000});
         }
       })
     }else{
