@@ -53,7 +53,7 @@ namespace AngularAuthAPI.Controllers
             if (!string.IsNullOrEmpty(pass)) { return BadRequest(new { Message = pass }); }
 
             userObj.Password = PasswordHasher.HashPassword(userObj.Password);
-            userObj.Role = "User";
+            userObj.Role = "Admin";
             userObj.Token = "";
             userObj.Email = userObj.Email.ToLower();
 
@@ -115,7 +115,7 @@ namespace AngularAuthAPI.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = identity,
-                Expires = DateTime.Now.AddDays(1),
+                Expires = DateTime.Now.AddSeconds(10),
                 SigningCredentials = credential
             };
 
