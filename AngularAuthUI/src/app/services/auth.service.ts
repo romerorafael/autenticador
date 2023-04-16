@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Router } from '@angular/router';
+import { JwtHelperService }  from '@auth0/angular-jwt';
+import { TokenApiModel } from '../models/token-api.model';
 
 @Injectable({
   providedIn: 'root'
@@ -8,8 +10,10 @@ import { Router } from '@angular/router';
 export class AuthService {
 
   private baseUrl: string = "https://localhost:7293/api/User/";
-
-  constructor( private http : HttpClient, private router: Router) { }
+  private userPayload: any;
+  constructor( private http : HttpClient, private router: Router) {
+    this.userPayload = this.decodeToken();
+   }
 
   signUp( userObj:any){
     return this.http.post<any>(`${this.baseUrl}register`, userObj);
@@ -23,8 +27,16 @@ export class AuthService {
     localStorage.setItem('token', tokenValue)
   }
 
+  storeRefreshToken(tokenValue:string){
+    localStorage.setItem('refreshToken', tokenValue)
+  }
+
   getToken() : string|null{
     return localStorage.getItem('token');
+  }
+
+  getRefreshToken() : string|null{
+    return localStorage.getItem('refreshToken');
   }
 
   logout(){
@@ -34,5 +46,27 @@ export class AuthService {
 
   isLoggedIn() : boolean{
     return !!localStorage.getItem('token')
+  }
+
+  decodeToken(){
+    const jwtHelper = new JwtHelperService();
+    const token = this.getToken()!;
+    return jwtHelper.decodeToken(token);
+  }
+
+  getFullNameFromToken(){
+    if(this.userPayload){
+      return this.userPayload.unique_name;
+    }
+  }
+
+  getRoleFromToken(){
+    if(this.userPayload){
+      return this.userPayload.role;
+    }
+  }
+
+  renewToken(tokenApi:TokenApiModel){
+    return this.http.post<any>(`${this.baseUrl}refresh`, tokenApi);
   }
 }

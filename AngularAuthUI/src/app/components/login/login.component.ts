@@ -4,6 +4,7 @@ import ValidateForm from '../../helpers/validatesForm'
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 import { NgToastService } from 'ng-angular-popup'
+import { UserStoreService } from 'src/app/services/user-store.service';
 
 @Component({
   selector: 'app-login',
@@ -15,19 +16,21 @@ export class LoginComponent implements OnInit{
   type: string= "password";
   eyeIcon: string = "fa-eye-slash";
   isText: boolean = false;
-  loginForm: FormGroup = this.fb.group({
-    username:['',Validators.required],
-    password:['',Validators.required]
-  });
+  loginForm!: FormGroup;
 
   constructor(
     private fb:FormBuilder, 
     private auth: AuthService, 
     private route:Router,
-    private toast:NgToastService  
+    private toast:NgToastService,
+    private userStore: UserStoreService 
   ) {}
 
   ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      username:['',Validators.required],
+      password:['',Validators.required]
+    });
   }
 
   hideShowPass(){
@@ -41,12 +44,16 @@ export class LoginComponent implements OnInit{
       this.auth.login(this.loginForm.value).subscribe({
         next:(res)=>{
           this.loginForm.reset;
-          this.auth.storeToken(res.token);
+          this.auth.storeToken(res.accessToken);
+          this.auth.storeRefreshToken(res.refresToken);
+          const tokenPayload = this.auth.decodeToken();
+          this.userStore.setFullNameFromStore(tokenPayload.unique_name);
+          this.userStore.setRoleFoStore(tokenPayload.role);
           this.toast.success({detail:"SUCESSO",summary:res.message, duration:5000});
           this.route.navigate(['dashboard']);
         },
         error:(err)=>{
-          this.toast.error({detail:"ERRO",summary:err.error.message, duration:5000});
+          this.toast.error({detail:"ERRO",summary:err.message, duration:5000});
         }
       })
     }else{
