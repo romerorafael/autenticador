@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http'
 import { Router } from '@angular/router';
 import { JwtHelperService }  from '@auth0/angular-jwt';
+<<<<<<< HEAD
 import { TokenApiModel } from '../models/token-api.model';
+=======
+>>>>>>> 64135db01914d446fc01ba05e13a01378e95dbfc
 
 @Injectable({
   providedIn: 'root'
@@ -65,8 +68,11 @@ export class AuthService {
       return this.userPayload.role;
     }
   }
+<<<<<<< HEAD
 
   renewToken(tokenApi:TokenApiModel){
     return this.http.post<any>(`${this.baseUrl}refresh`, tokenApi);
   }
+=======
+>>>>>>> 64135db01914d446fc01ba05e13a01378e95dbfc
 }
