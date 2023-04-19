@@ -68,11 +68,8 @@ export class AuthService {
       return this.userPayload.role;
     }
   }
-<<<<<<< HEAD
 
   renewToken(tokenApi:TokenApiModel){
     return this.http.post<any>(`${this.baseUrl}refresh`, tokenApi);
   }
-=======
->>>>>>> 64135db01914d446fc01ba05e13a01378e95dbfc
 }
