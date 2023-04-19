@@ -27,7 +27,7 @@
                             <small *ngIf="loginForm.controls['password'].dirty && loginForm.hasError('required','password')" class="text-danger"> Senha é obrigatório</small>
 
                             <div class="form-inline fr mt-4">
-                                <a id="forget" class="font-weight-bold"> Esqueci minha senha</a>
+                                <a id="forget" data-bs-toggle="modal" data-bs-target="#exampleModal" class="font-weight-bold" > Esqueci minha senha</a>
                             </div>
                             <button (click)="onSubmit()" type="submit" class="btn btn-primary btn-block mt-4 w-100">Login</button>
                             <div class="text-center pt-4 text-muted"> Não tem acesso? <a id="signup" routerLink="/signup">Sign Up</a></div>
@@ -45,3 +45,39 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <p class="modal-title" id="exampleModalLabel">Esqueci minha senha </p>
+          <small> Por favor entre com seu e-mail para recuperar a senha</small>
+          <button type="button" class="btn close" data-bs-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+            <div class="form-group pt-3">
+                <div class="input-field">
+                    <span class="fa fa-user pt-2">
+                        <input [(ngModel)]="resetPasswordEmail" (ngModelChange)="checkValidEmail($event)" type="email" name="email" id="forgetEmail" placeholder="E-mail">
+                    </span>
+                </div>
+                <small *ngIf="!resetPasswordEmail" class="text-danger">
+                    * O e-mail é obrigatório
+                </small>
+                <small class="text-danger" *ngIf="!isValidEmail && resetPasswordEmail">
+                    * O e-mail é inválido
+                </small>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="closeBtn" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar </button>
+          <button type="button" class="btn btn-primary" (click)="confimToSend()">Enviar </button>
+        </div>
+      </div>
+    </div>
+  </div>

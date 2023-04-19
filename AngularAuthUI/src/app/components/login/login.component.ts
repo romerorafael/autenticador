@@ -17,6 +17,8 @@ export class LoginComponent implements OnInit{
   eyeIcon: string = "fa-eye-slash";
   isText: boolean = false;
   loginForm!: FormGroup;
+  resetPasswordEmail!: string;
+  isValidEmail!: boolean ;
 
   constructor(
     private fb:FormBuilder, 
@@ -61,4 +63,18 @@ export class LoginComponent implements OnInit{
     }
   }
 
+  checkValidEmail(event:string){
+    const value = event;
+    const pattern = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/;
+    this.isValidEmail = pattern.test(value);
+    return this.isValidEmail; 
+  }
+
+  confimToSend(){
+    if(this.checkValidEmail(this.resetPasswordEmail)){
+      this.resetPasswordEmail = "";
+      const buttonRef = document.getElementById('closeBtn');
+      buttonRef?.click();
+    }
+  }
 }
